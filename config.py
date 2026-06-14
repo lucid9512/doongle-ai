@@ -29,6 +29,13 @@ def _get(name: str, default: str | None = None, required: bool = False) -> str:
     return value
 
 
+def _get_bool(name: str, default: bool = False) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() == "true"
+
+
 @dataclass(frozen=True)
 class Settings:
     kafka_broker: str
@@ -38,9 +45,14 @@ class Settings:
     model: str
     storage_backend: str
     local_storage_path: str
+    minio_endpoint: str
+    minio_access_key: str
+    minio_secret_key: str
+    minio_bucket: str
+    minio_secure: bool
 
     def redacted(self) -> dict:
-        """로그용. 비밀값(DATABASE_URL)은 가린다."""
+        """로그용. 비밀값(DATABASE_URL, MINIO_SECRET_KEY)은 가린다."""
         return {
             "kafka_broker": self.kafka_broker,
             "kafka_topic": self.kafka_topic,
@@ -49,6 +61,11 @@ class Settings:
             "model": self.model,
             "storage_backend": self.storage_backend,
             "local_storage_path": self.local_storage_path,
+            "minio_endpoint": self.minio_endpoint,
+            "minio_access_key": self.minio_access_key,
+            "minio_secret_key": "***" if self.minio_secret_key else "",
+            "minio_bucket": self.minio_bucket,
+            "minio_secure": self.minio_secure,
         }
 
 
@@ -73,4 +90,9 @@ def load_settings() -> Settings:
         model=_get("MODEL", "google/vit-base-patch16-224"),
         storage_backend=_get("STORAGE_BACKEND", "local"),
         local_storage_path=_get("LOCAL_STORAGE_PATH", "./uploads"),
+        minio_endpoint=_get("MINIO_ENDPOINT", "localhost:9000"),
+        minio_access_key=_get("MINIO_ACCESS_KEY", ""),
+        minio_secret_key=_get("MINIO_SECRET_KEY", ""),
+        minio_bucket=_get("MINIO_BUCKET", "images"),
+        minio_secure=_get_bool("MINIO_SECURE", False),
     )
