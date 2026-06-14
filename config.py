@@ -52,7 +52,7 @@ class Settings:
     minio_secure: bool
 
     def redacted(self) -> dict:
-        """로그용. 비밀값(DATABASE_URL, MINIO_SECRET_KEY)은 가린다."""
+        """로그용. 비밀값(DATABASE_URL_SYNC, MINIO_SECRET_KEY)은 가린다."""
         return {
             "kafka_broker": self.kafka_broker,
             "kafka_topic": self.kafka_topic,
@@ -86,7 +86,10 @@ def load_settings() -> Settings:
         kafka_broker=_get("KAFKA_BROKER", "localhost:9092"),
         kafka_topic=_get("KAFKA_TOPIC", "image-upload"),
         kafka_group_id=_get("KAFKA_GROUP_ID", "doongle-ai-workers"),
-        database_url=_get("DATABASE_URL", required=True),
+        # 워커는 동기 드라이버(psycopg2)용 URL을 api와 분리된 전용 키로 읽는다.
+        # (api는 async asyncpg 스킴의 DATABASE_URL을 쓴다 → 같은 키 공유 시 워커가
+        #  asyncpg를 import하려다 죽음. DATABASE_URL_SYNC로 분리.)
+        database_url=_get("DATABASE_URL_SYNC", required=True),
         model=_get("MODEL", "google/vit-base-patch16-224"),
         storage_backend=_get("STORAGE_BACKEND", "local"),
         local_storage_path=_get("LOCAL_STORAGE_PATH", "./uploads"),
