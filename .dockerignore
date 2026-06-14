@@ -1,0 +1,12 @@
+# 이미지에 넣지 않을 것들
+.git
+.venv
+venv
+uploads
+.env
+.env.example
+__pycache__
+*.py[cod]
+docs
+README.md
+CLAUDE.md
