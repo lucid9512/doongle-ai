@@ -1,12 +1,13 @@
 """doongle-ai — GPU 추론 워커 진입점.
 
-단계 1~2: 설정 로딩 + 스토리지 백엔드 선택. (Kafka consumer / DB / 추론은 이후 단계에서 추가)
+단계 1~3: 설정 로딩 + 스토리지 백엔드 선택 + DB 엔진/세션. (Kafka consumer / 추론은 이후 단계)
 """
 
 import logging
 
 from config import load_settings
 from storage import get_storage
+from db import create_db_engine, create_session_factory
 
 logging.basicConfig(
     level=logging.INFO,
@@ -22,7 +23,11 @@ def main() -> None:
 
     storage = get_storage(settings)
     logger.info("storage ready: %s", type(storage).__name__)
-    # TODO(단계 3~5): DB 세션, 추론 모델 로드, Kafka consumer 루프
+
+    engine = create_db_engine(settings.database_url)
+    session_factory = create_session_factory(engine)
+    logger.info("db engine ready")
+    # TODO(단계 4~5): 추론 모델 로드, Kafka consumer 루프
 
 
 if __name__ == "__main__":
