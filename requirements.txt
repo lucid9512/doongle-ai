@@ -1,0 +1,7 @@
+kafka-python>=2.0.2
+SQLAlchemy>=2.0.0
+psycopg2-binary>=2.9.0
+Pillow>=10.0.0
+torch>=2.0.0
+transformers>=4.30.0
+python-dotenv>=1.0.0
